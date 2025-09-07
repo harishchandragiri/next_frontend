@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 
 const page = () => {
   return (
-  <Card className="m-3 w-[300px] h-[370px] bg-amber-200">
+  <Card className="m-3 w-[300px] h-[370px] bg-gray-50">
   <CardHeader>
 <div className="w-full flex justify-center rounded-md bg-amber-50">
        <img
