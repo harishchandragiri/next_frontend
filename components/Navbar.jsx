@@ -38,11 +38,11 @@ const Navbar = () => {
               </NavigationMenuLink>
             </NavigationMenuItem>
 
-            <NavigationMenuItem>
+            {/* <NavigationMenuItem>
               <NavigationMenuLink asChild>
                 <Link href="/transaction">Transactions</Link>
               </NavigationMenuLink>
-            </NavigationMenuItem>
+            </NavigationMenuItem> */}
 
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
@@ -94,9 +94,9 @@ const Navbar = () => {
         <X size={24} />
       </button>
       <Link href="/" onClick={() => setIsOpen(false)}>Home</Link>
-      <Link href="/products" onClick={() => setIsOpen(false)}>Products</Link>
+      {/* <Link href="/products" onClick={() => setIsOpen(false)}>Products</Link> */}
       <Link href="/cart" onClick={() => setIsOpen(false)}>Cart</Link>
-      <Link href="/transaction" onClick={() => setIsOpen(false)}>Transactions</Link>
+      {/* <Link href="/transaction" onClick={() => setIsOpen(false)}>Transactions</Link> */}
       <Link href="/users" onClick={() => setIsOpen(false)}>Profile</Link>
       <Link href="/login" onClick={() => setIsOpen(false)}>Login</Link>
       <Link href="/register" onClick={() => setIsOpen(false)}>Register</Link>
