@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-
+import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -36,6 +36,13 @@ const Cart = () => {
 
   return (
     <div>
+      <div >
+        <div className='flex justify-between items-center'>
+          <h2 className='font-semibold text-3xl my-2 px-3 lg:px-0'>Products</h2>
+          <Button className={'mx-3 w-24'}>Buy</Button>
+        </div>
+        <hr className="my-1  border-gray-300" />
+      </div>
               <Table>
               <TableCaption>A list of your recent transactions( Total Buy ).</TableCaption>
               <TableHeader>
@@ -51,7 +58,17 @@ const Cart = () => {
                 {users.length > 0 ? (
                   users.map((item) => (
                     <TableRow key={item.id}>
-                      <TableCell >{item.product}</TableCell>
+                      <TableCell className={'px-2 flex items-center'}>      
+                         <img
+                             src={
+                                item.image
+                                 ? `${API_URL}${item.image.formats.large.url}`
+                                 : "/default-avatar.png"
+                             }
+                             alt="Profile"
+                             className="w-10 h-10 object-cover rounded-full border-2 border-gray-200 shadow-md"
+                           />
+                      </TableCell>
                       <TableCell className="font-medium">{item.product}</TableCell>
                       <TableCell>{item.Quantity}</TableCell>
                       <TableCell>${item.Price}</TableCell>
