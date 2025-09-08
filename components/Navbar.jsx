@@ -34,12 +34,6 @@ const Navbar = () => {
 
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
-                <Link href="/products">Products</Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
                 <Link href="/cart">Cart</Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
