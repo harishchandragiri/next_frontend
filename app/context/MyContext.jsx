@@ -14,7 +14,7 @@ export const MyContextProvider = ({ children }) => {
   const [ID, setID] = useState(null);
 
     useEffect(()=>{
-    axios.get(`${API_URL}/api/users/:id`, {withCredentials:true})
+    axios.get(`${API_URL}/api/users`, {withCredentials:true})
     .then(res =>{
       // res have email and username get from the backend '/' route
       setUser(res.data[0])
