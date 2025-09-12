@@ -14,21 +14,12 @@ import {
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, setUser } = useMyContext();
+  const { user, logout } = useMyContext(); // ✅ use context logout
   const router = useRouter();
 
   const handleLogout = () => {
-    // Remove JWT if stored in localStorage/cookies
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("jwt"); // if you store JWT in localStorage
-      document.cookie =
-        "jwt=; Max-Age=0; path=/; secure; samesite=strict"; // clear cookie
-
-        // Cookies.remove("jwt"); // ✅ clear cookie
-    }
-
-    setUser(null); // clear from context
-    router.push("/login"); // redirect to login page
+    logout(); // clears jwt + user
+    router.push("/login");
   };
 
   return (
@@ -69,13 +60,11 @@ const Navbar = () => {
                 </NavigationMenuItem>
               </>
             ) : (
-              <>
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    <Link href="/login">Login</Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              </>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link href="/login">Login</Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
             )}
           </NavigationMenuList>
         </NavigationMenu>
@@ -130,11 +119,9 @@ const Navbar = () => {
                 </button>
               </>
             ) : (
-              <>
-                <Link href="/login" onClick={() => setIsOpen(false)}>
-                  Login
-                </Link>
-              </>
+              <Link href="/login" onClick={() => setIsOpen(false)}>
+                Login
+              </Link>
             )}
           </div>
         </>

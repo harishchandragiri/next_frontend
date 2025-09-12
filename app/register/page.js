@@ -41,11 +41,23 @@ const Page = () => {
       );
 
       // 2️⃣ Auto-login after registration
+      // const loginRes = await axios.post(
+      //   `${API_URL}/api/auth/login`,
+      //   { identifier: email, password }, // Strapi login expects "identifier" (username/email) & password
+      //   { withCredentials: true }
+      // );
+
+// /api/auth/login
+
       const loginRes = await axios.post(
         `${API_URL}/api/auth/login`,
-        { identifier: email, password }, // Strapi login expects "identifier" (username/email) & password
-        { withCredentials: true }
+        { identifier: email, password },
+        { withCredentials: true } // IMPORTANT: allows browser to store cookie
       );
+
+
+
+
 
       // ✅ Save user in context and redirect
       setUser(loginRes.data.user);

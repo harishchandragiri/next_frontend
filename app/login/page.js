@@ -33,20 +33,37 @@ const Page = () => {
     e.preventDefault();
     setErrorMsg("");
 
+    if (!email || !password) {
+      setErrorMsg("Please fill in both fields");
+      return;
+    }
+
     try {
-      // ✅ Send credentials to backend, allow cookies
       const res = await axios.post(
         `${API_URL}/api/auth/login`,
         { identifier: email, password },
-        { withCredentials: true } // IMPORTANT: allows browser to store cookie
+        { headers: { "Content-Type": "application/json" } }
       );
 
-      // ✅ No need to manually save JWT, backend already set it in cookie
-      setUser(res.data.user); 
-      router.push("/"); 
+      console.log("Login response:", res.data);
+
+      // ✅ Save JWT for future requests
+      localStorage.setItem("jwt", res.data.jwt);
+
+      // ✅ Save user in context
+      setUser(res.data.user);
+
+      // ✅ Redirect to home
+      router.push("/");
     } catch (err) {
-      setErrorMsg("Invalid credentials, please try again.");
-      console.error(err);
+      console.error("Login error:", err.response?.data || err.message);
+
+      const msg =
+        err.response?.data?.error?.message ||
+        err.response?.data?.message ||
+        "Invalid credentials, please try again.";
+
+      setErrorMsg(msg);
     }
   };
 
@@ -89,9 +106,11 @@ const Page = () => {
                 />
               </div>
             </div>
+
             {errorMsg && (
               <p className="text-red-500 text-sm mt-2">{errorMsg}</p>
             )}
+
             <CardFooter className="flex-col gap-2 px-0 py-4">
               <Button type="submit" className="w-full">
                 Login
