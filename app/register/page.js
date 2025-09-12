@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useMyContext } from "@/app/context/MyContext";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import Cookies from "js-cookie"; // ✅ import js-cookie
 import {
   Card,
   CardAction,
@@ -34,27 +33,26 @@ const Page = () => {
     setErrorMsg("");
 
     try {
-      const res = await axios.post(`${API_URL}/api/auth/local/register`, {
-        username,
-        email,
-        password,
-      });
+      // 1️⃣ Register the user
+      await axios.post(
+        `${API_URL}/api/auth/local/register`,
+        { username, email, password },
+        { withCredentials: true }
+      );
 
-      if (res.data.jwt) {
-        // ✅ Save JWT in cookie
-        Cookies.set("jwt", res.data.jwt, {
-          expires: 1, // 1 day (adjust as needed)
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
-        });
+      // 2️⃣ Auto-login after registration
+      const loginRes = await axios.post(
+        `${API_URL}/api/auth/login`,
+        { identifier: email, password }, // Strapi login expects "identifier" (username/email) & password
+        { withCredentials: true }
+      );
 
-        setUser(res.data.user); // save user in context
-        router.push("/"); // redirect home
-      }
+      // ✅ Save user in context and redirect
+      setUser(loginRes.data.user);
+      router.push("/"); 
     } catch (err) {
-      console.error("Register error:", err.response?.data || err.message);
+      console.error("Error:", err.response?.data || err.message);
 
-      // Handle backend error messages properly
       if (err.response?.data?.error?.message) {
         setErrorMsg(err.response.data.error.message);
       } else {
@@ -78,7 +76,6 @@ const Page = () => {
           </CardAction>
         </CardHeader>
 
-        {/* ✅ Form starts here */}
         <form onSubmit={submitDetails}>
           <CardContent>
             <div className="flex flex-col gap-6">

@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import Cookies from "js-cookie"; // ✅ import js-cookie
 import { useMyContext } from "@/app/context/MyContext";
 
 import { Button } from "@/components/ui/button";
@@ -35,22 +34,16 @@ const Page = () => {
     setErrorMsg("");
 
     try {
-      const res = await axios.post(`${API_URL}/api/auth/login`, {
-        identifier: email,
-        password,
-      });
+      // ✅ Send credentials to backend, allow cookies
+      const res = await axios.post(
+        `${API_URL}/api/auth/login`,
+        { identifier: email, password },
+        { withCredentials: true } // IMPORTANT: allows browser to store cookie
+      );
 
-      if (res.data.jwt) {
-        // ✅ Save JWT in cookie
-        Cookies.set("jwt", res.data.jwt, {
-          expires: 1, //  refresh token 7 days time
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
-        });
-
-        setUser(res.data.user); // save user in context
-        router.push("/"); // redirect home
-      }
+      // ✅ No need to manually save JWT, backend already set it in cookie
+      setUser(res.data.user); 
+      router.push("/"); 
     } catch (err) {
       setErrorMsg("Invalid credentials, please try again.");
       console.error(err);
