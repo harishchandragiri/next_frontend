@@ -82,6 +82,9 @@ export default function ProfileCard() {
       // ✅ Refetch user so we always have populated image
       await fetchUser();
 
+
+
+
       // 3️⃣ Delete previous image
       if (previousImageId && previousImageId !== newImageId) {
         try {
@@ -96,8 +99,10 @@ export default function ProfileCard() {
           );
         }
       }
-
       console.log("Image updated successfully!");
+
+
+      
       setSelectedFile(null);
     } catch (err) {
       console.error("Upload failed:", err.response?.data || err.message);
