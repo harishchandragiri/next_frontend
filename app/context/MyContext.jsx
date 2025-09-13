@@ -28,7 +28,7 @@ export const MyContextProvider = ({ children }) => {
         });
 
         console.log("Fetched user on refresh:", res.data);
-        setUser(res.data);
+        setUser(res.data.user);
       } catch (err) {
         console.log("Fetch user error:", err.response?.data || err.message);
         setUser(null);
