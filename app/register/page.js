@@ -33,35 +33,22 @@ const Page = () => {
     setErrorMsg("");
 
     try {
-      // 1️⃣ Register the user
-      await axios.post(
-        `${API_URL}/api/auth/local/register`,
-        { username, email, password },
-        { withCredentials: true }
-      );
+      // ✅ Register (Strapi v5 returns jwt + user)
+      const res = await axios.post(`${API_URL}/api/auth/local/register`, {
+        username,
+        email,
+        password,
+      });
 
-      // 2️⃣ Auto-login after registration
-      // const loginRes = await axios.post(
-      //   `${API_URL}/api/auth/login`,
-      //   { identifier: email, password }, // Strapi login expects "identifier" (username/email) & password
-      //   { withCredentials: true }
-      // );
+      // ✅ Save JWT + user to localStorage
+      localStorage.setItem("jwt", res.data.jwt);
+      // localStorage.setItem("user", JSON.stringify(res.data.user));
 
-// /api/auth/login
+      // ✅ Update context
+      setUser(res.data.user);
 
-      const loginRes = await axios.post(
-        `${API_URL}/api/auth/login`,
-        { identifier: email, password },
-        { withCredentials: true } // IMPORTANT: allows browser to store cookie
-      );
-
-
-
-
-
-      // ✅ Save user in context and redirect
-      setUser(loginRes.data.user);
-      router.push("/"); 
+      // ✅ Redirect
+      router.push("/");
     } catch (err) {
       console.error("Error:", err.response?.data || err.message);
 
