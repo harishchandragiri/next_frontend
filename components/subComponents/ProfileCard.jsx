@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
@@ -6,21 +6,24 @@ import { UploadCloud } from "lucide-react";
 import { useMyContext } from "@/app/context/MyContext";
 
 export default function ProfileCard() {
-  const { user, setUser } = useMyContext();
+  const { user, setUser, image, setImage, fetchUser } = useMyContext();
   const [selectedFile, setSelectedFile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [imagePreview, setImagePreview] = useState("/default-avatar.png");
-  const [showUploadButton, setShowUploadButton] = useState(false); // ✅ controls visibility
+  const [showUploadButton, setShowUploadButton] = useState(false);
 
   const fileInputRef = useRef(null);
   const API_URL = "http://localhost:1337";
-  const token = typeof window !== "undefined" ? localStorage.getItem("jwt") : null;
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("jwt") : null;
 
   useEffect(() => {
     if (user) {
       setInputValue(user.username || "");
-      setImagePreview(user.image?.url ? `${API_URL}${user.image.url}` : "/default-avatar.png");
+      setImagePreview(
+        user.image ? `${user.image.url}` : "/default-avatar.png"
+      );
     }
   }, [user]);
 
@@ -29,10 +32,13 @@ export default function ProfileCard() {
   // ===== Image Upload =====
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file && ["image/jpeg", "image/jpg", "image/png", "image/bmp"].includes(file.type)) {
+    if (
+      file &&
+      ["image/jpeg", "image/jpg", "image/png", "image/bmp"].includes(file.type)
+    ) {
       setSelectedFile(file);
       setImagePreview(URL.createObjectURL(file));
-      setShowUploadButton(true); // ✅ Show upload button when new file is selected
+      setShowUploadButton(true);
     } else {
       setSelectedFile(null);
       alert("Please select a valid image file.");
@@ -45,13 +51,15 @@ export default function ProfileCard() {
     if (!selectedFile) return;
 
     try {
-      // Upload new image
+      // 1️⃣ Upload file to Strapi
       const formData = new FormData();
       formData.append("files", selectedFile);
 
       const uploadRes = await axios.post(`${API_URL}/api/upload`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
+      setShowUploadButton(false);
 
       if (!uploadRes.data[0]) {
         console.error("Upload failed, no file returned.");
@@ -61,37 +69,36 @@ export default function ProfileCard() {
       const uploadedFile = uploadRes.data[0];
       const newImageId = uploadedFile.id;
 
-      // Keep track of previous image id
+      // Keep previous image id if exists
       const previousImageId = user.image?.id;
 
-      // Update user with new image
-      const updateRes = await axios.put(
-        `${API_URL}/api/users/${user.id}?populate=image`,
+      // 2️⃣ Update user with new image
+      await axios.put(
+        `${API_URL}/api/users/${user.id}`,
         { image: newImageId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      const updatedUser = updateRes.data.data;
+      // ✅ Refetch user so we always have populated image
+      await fetchUser();
 
-      // Correct absolute URL
-      if (updatedUser.image?.url && !updatedUser.image.url.startsWith("http")) {
-        updatedUser.image.url = `${API_URL}${updatedUser.image.url}`;
-      }
-
-      setUser(updatedUser);
-      setSelectedFile(null);
-      setShowUploadButton(false); // ✅ Hide upload button after successful upload
-
-      // Delete previous image if exists and is different
+      // 3️⃣ Delete previous image
       if (previousImageId && previousImageId !== newImageId) {
         try {
           await axios.delete(`${API_URL}/api/upload/files/${previousImageId}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
+          console.log("Previous image deleted successfully");
         } catch (err) {
-          console.warn("Failed to delete old image:", err.response?.data || err.message);
+          console.warn(
+            "Failed to delete previous image:",
+            err.response?.data || err.message
+          );
         }
       }
+
+      console.log("Image updated successfully!");
+      setSelectedFile(null);
     } catch (err) {
       console.error("Upload failed:", err.response?.data || err.message);
     }
@@ -102,14 +109,17 @@ export default function ProfileCard() {
     if (!inputValue.trim()) return;
 
     try {
-      const res = await axios.put(
+      await axios.put(
         `${API_URL}/api/users/${user.id}`,
         { username: inputValue },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setUser(res.data.data || res.data);
+      // ✅ Refetch user instead of overwriting with incomplete data
+      await fetchUser();
+
       setIsEditing(false);
+      console.log("Username updated successfully!");
     } catch (err) {
       console.error("Error updating username:", err.response?.data || err.message);
     }
@@ -157,7 +167,9 @@ export default function ProfileCard() {
 
       {/* Username Section */}
       <div className="w-full">
-        <label className="text-xl text-black w-full mb-2 font-bold">Username</label>
+        <label className="text-xl text-black w-full mb-2 font-bold">
+          Username
+        </label>
         {isEditing ? (
           <div className="w-full mt-2 flex flex-col justify-center gap-2 items-center">
             <input
@@ -175,7 +187,9 @@ export default function ProfileCard() {
           </div>
         ) : (
           <div className="mt-2 flex justify-between items-center">
-            <h2 className="text-xl w-full text-wrap break-all font-semibold">{user.username}</h2>
+            <h2 className="text-xl w-full text-wrap break-all font-semibold">
+              {user.username}
+            </h2>
             <button
               onClick={() => setIsEditing(true)}
               className="bg-blue-500 w-[70px] text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
@@ -191,7 +205,9 @@ export default function ProfileCard() {
       {/* Email Section */}
       <div className="w-full flex flex-col">
         <label className="text-xl text-black w-full m-1 font-bold">Email</label>
-        <h2 className="text-xl text-blue-600 w-full p-1 text-wrap break-all">{user.email}</h2>
+        <h2 className="text-xl text-blue-600 w-full p-1 text-wrap break-all">
+          {user.email}
+        </h2>
       </div>
     </div>
   );
