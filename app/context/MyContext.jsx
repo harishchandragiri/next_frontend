@@ -8,10 +8,8 @@ const API_URL = "http://localhost:1337";
 
 export const MyContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [values, setValues] = useState(null);
-  const [ID, setID] = useState(null);
 
-  // 🔑 Load token from localStorage and fetch user
+  // Load user from JWT
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem("jwt");
@@ -21,32 +19,34 @@ export const MyContextProvider = ({ children }) => {
       }
 
       try {
-        const res = await axios.get(`${API_URL}/api/users/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`, // ✅ pass JWT
-          },
+        const res = await axios.get(`${API_URL}/api/users/me?populate=image`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
 
-        console.log("Fetched user on refresh:", res.data);
-        setUser(res.data.user);
+        const userData = res.data.data || res.data;
+
+        if (userData.image?.url && !userData.image.url.startsWith("http")) {
+          userData.image.url = `${API_URL}${userData.image.url}`;
+        }
+
+        setUser(userData);
       } catch (err) {
-        console.log("Fetch user error:", err.response?.data || err.message);
+        console.error("Fetch user error:", err.response?.data || err.message);
         setUser(null);
-        localStorage.removeItem("jwt"); // clear invalid token
+        localStorage.removeItem("jwt");
       }
     };
 
     fetchUser();
   }, []);
 
-  // 🔐 Logout function
   const logout = () => {
     localStorage.removeItem("jwt");
     setUser(null);
   };
 
   return (
-    <MyContext.Provider value={{ user, setUser, logout, values, setValues, ID, setID }}>
+    <MyContext.Provider value={{ user, setUser, logout }}>
       {children}
     </MyContext.Provider>
   );
