@@ -19,7 +19,7 @@ export const MyContextProvider = ({ children }) => {
       }
 
       try {
-        const res = await axios.get(`${API_URL}/api/users/me?populate=image`, {
+        const res = await axios.get(`${API_URL}/api/users/me?populate=*`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -28,7 +28,8 @@ export const MyContextProvider = ({ children }) => {
         if (userData.image?.url && !userData.image.url.startsWith("http")) {
           userData.image.url = `${API_URL}${userData.image.url}`;
         }
-
+        
+        console.log("Fetched user data:", userData);
         setUser(userData);
       } catch (err) {
         console.error("Fetch user error:", err.response?.data || err.message);

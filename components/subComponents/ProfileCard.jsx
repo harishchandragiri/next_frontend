@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
@@ -11,6 +11,7 @@ export default function ProfileCard() {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [imagePreview, setImagePreview] = useState("/default-avatar.png");
+  const [showUploadButton, setShowUploadButton] = useState(false); // ✅ controls visibility
 
   const fileInputRef = useRef(null);
   const API_URL = "http://localhost:1337";
@@ -19,7 +20,7 @@ export default function ProfileCard() {
   useEffect(() => {
     if (user) {
       setInputValue(user.username || "");
-      setImagePreview(user.image?.url || "/default-avatar.png");
+      setImagePreview(user.image?.url ? `${API_URL}${user.image.url}` : "/default-avatar.png");
     }
   }, [user]);
 
@@ -31,6 +32,7 @@ export default function ProfileCard() {
     if (file && ["image/jpeg", "image/jpg", "image/png", "image/bmp"].includes(file.type)) {
       setSelectedFile(file);
       setImagePreview(URL.createObjectURL(file));
+      setShowUploadButton(true); // ✅ Show upload button when new file is selected
     } else {
       setSelectedFile(null);
       alert("Please select a valid image file.");
@@ -51,29 +53,39 @@ export default function ProfileCard() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      if (!uploadRes.data[0]) {
+        console.error("Upload failed, no file returned.");
+        return;
+      }
+
       const uploadedFile = uploadRes.data[0];
       const newImageId = uploadedFile.id;
 
-      // Update user image
+      // Keep track of previous image id
+      const previousImageId = user.image?.id;
+
+      // Update user with new image
       const updateRes = await axios.put(
-        `${API_URL}/api/users/${user.id}`,
-        { data: { image: newImageId } },
+        `${API_URL}/api/users/${user.id}?populate=image`,
+        { image: newImageId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      const updatedUser = updateRes.data.data || updateRes.data;
+      const updatedUser = updateRes.data.data;
 
+      // Correct absolute URL
       if (updatedUser.image?.url && !updatedUser.image.url.startsWith("http")) {
         updatedUser.image.url = `${API_URL}${updatedUser.image.url}`;
       }
 
       setUser(updatedUser);
       setSelectedFile(null);
+      setShowUploadButton(false); // ✅ Hide upload button after successful upload
 
-      // Delete old image if exists
-      if (user.image?.id && user.image.id !== newImageId) {
+      // Delete previous image if exists and is different
+      if (previousImageId && previousImageId !== newImageId) {
         try {
-          await axios.delete(`${API_URL}/api/upload/files/${user.image.id}`, {
+          await axios.delete(`${API_URL}/api/upload/files/${previousImageId}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
         } catch (err) {
@@ -96,11 +108,10 @@ export default function ProfileCard() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      const updatedUser = res.data.data || res.data;
-      setUser(updatedUser);
+      setUser(res.data.data || res.data);
       setIsEditing(false);
     } catch (err) {
-      console.error("Error updating username:", err);
+      console.error("Error updating username:", err.response?.data || err.message);
     }
   };
 
@@ -130,7 +141,7 @@ export default function ProfileCard() {
             className="hidden"
           />
         </div>
-        {selectedFile && (
+        {showUploadButton && (
           <div className="mb-5 w-full flex justify-center">
             <button
               onClick={handleUpload}
