@@ -2,8 +2,37 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
+import axios from "axios";
+import { useEffect } from "react";
+import { useParams } from "next/navigation";
 
 const page = () => {
+
+   const { id } = useParams(); // dynamic route param
+  const API_URL = "http://localhost:1337"; // ✅ hardcoded, not from context
+  const [products, setProducts]=useState([])
+
+useEffect(() => {
+  let isMounted = true; // track mount status
+  if (!id) return;
+
+  axios
+    .get(`${API_URL}/api/products?filters[id][$eq]=${id}&populate=*`)
+    .then((res) => {
+      if (isMounted) {
+        const data = res.data.data || [];
+        setProducts(data);
+        console.log("Fetched product is:", data);
+      }
+    })
+    .catch((err) => console.error(err));
+
+  return () => {
+    isMounted = false; // cleanup
+  };
+}, [id]);
+
+
   const [quantity, setQuantity] = useState(1);
 
   // Example product data

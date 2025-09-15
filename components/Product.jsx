@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react'
+import Link from "next/link";
 import {
   Card,
   CardAction,
@@ -46,7 +47,9 @@ const Product = () => {
 
 <div className='mb-3 flex flex-wrap justify-center md:justify-start'>
   {product.map((prod) => (
-    <Card key={prod.id} className="sm:mx-3 mx-1 my-3 w-[300px] h-[400px] rounded-2xl shadow-lg bg-amber-50 border border-amber-200">
+    <div key={prod.id}>
+    <Link href={`/products/${prod.id}`}>
+    <Card className="sm:mx-3 mx-1 my-3 w-[300px] h-[400px] rounded-2xl shadow-lg bg-amber-50 border border-amber-200">
       <CardHeader>
         <div className="w-full flex justify-center rounded-md bg-gradient-to-r from-yellow-100 to-amber-100 shadow-sm">
           <img
@@ -85,6 +88,8 @@ const Product = () => {
         🛒 Add to Cart
       </Button>
     </Card>
+    </Link>
+    </div>
   ))}
 </div>
 
