@@ -18,16 +18,15 @@ const Cart = () => {
   const { user } = useMyContext();
   const API_URL = "http://localhost:1337";
 
-  // ✅ Always call hooks at the top level
   useEffect(() => {
-    if (!user || !user.id) return; // wait until user is loaded
+    if (!user || !user.id) return;
     const token = localStorage.getItem("jwt");
 
-    // http://localhost:1337/api/carts?populate=*&filters[users_permissions_user][id][$eq]=${user.id}
+    // http://localhost:1337/api/carts?populate[products][populate]=image&filters[users_permissions_user][id][$eq]=6
 
     axios
       .get(
-        `${API_URL}/api/carts?populate=*&filters[users_permissions_user][id][$eq]=${user.id}`,
+        `${API_URL}/api/carts?populate[products][populate]=image&filters[users_permissions_user][id][$eq]=${user.id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       )
       .then((res) => {
@@ -38,7 +37,6 @@ const Cart = () => {
       .catch((err) => console.error("Error fetching carts:", err));
   }, [user]);
 
-  // ✅ Handle loading state inside render
   if (!user) {
     return <p className="text-center">Loading user data...</p>;
   }
@@ -64,26 +62,31 @@ const Cart = () => {
         </TableHeader>
         <TableBody>
           {carts.length > 0 ? (
-            carts.map((item) => {
-              const attrs = item;
-              const product = attrs.product?.data;
-              const image = product?.image?.data?.formats?.thumbnail?.url;
+            carts.map((cart) => {
+              const Product = cart.products?.[0]; // first product in the array
+              if (!Product) return null; // skip if no product
+
+              // access product attributes
+              const productName = Product.productName || "N/A";
+              const price = Product.Price || 0;
+              const quantity = cart.quantity;
+              const image = Product.image?.url;
 
               return (
-                <TableRow key={item.id}>
+                <TableRow key={cart.id}>
                   <TableCell className="px-2 flex items-center">
                     <img
                       src={image ? `${API_URL}${image}` : "/default-avatar.png"}
-                      alt="Product"
+                      alt={productName}
                       className="w-10 h-10 object-cover rounded-full border-2 border-gray-200 shadow-md"
                     />
                   </TableCell>
-                  <TableCell className="font-medium">{product?.title}</TableCell>
-                  <TableCell>{attrs.quantity}</TableCell>
-                  <TableCell>${attrs.price}</TableCell>
+                  <TableCell className="font-medium">{productName}</TableCell>
+                  <TableCell>{quantity}</TableCell>
+                  <TableCell>${price}</TableCell>
                   <TableCell className="text-right">
-                    {attrs.soldDate
-                      ? new Date(attrs.soldDate).toLocaleDateString()
+                    {cart.publishedAt
+                      ? new Date(cart.publishedAt).toLocaleDateString()
                       : "N/A"}
                   </TableCell>
                 </TableRow>
