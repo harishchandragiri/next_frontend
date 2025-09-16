@@ -22,8 +22,6 @@ const Cart = () => {
     if (!user || !user.id) return;
     const token = localStorage.getItem("jwt");
 
-    // http://localhost:1337/api/carts?populate[products][populate]=image&filters[users_permissions_user][id][$eq]=6
-
     axios
       .get(
         `${API_URL}/api/carts?populate[products][populate]=image&filters[users_permissions_user][id][$eq]=${user.id}`,
@@ -40,6 +38,16 @@ const Cart = () => {
   if (!user) {
     return <p className="text-center">Loading user data...</p>;
   }
+
+  // ✅ Function to calculate total amount
+  const totalAmount = carts.reduce((total, cart) => {
+    if (cart.products && cart.products.length > 0) {
+      cart.products.forEach((product) => {
+        total += cart.quantity * (product.Price || 0);
+      });
+    }
+    return total;
+  }, 0);
 
   return (
     <div>
@@ -63,10 +71,9 @@ const Cart = () => {
         <TableBody>
           {carts.length > 0 ? (
             carts.map((cart) => {
-              const Product = cart.products?.[0]; // first product in the array
-              if (!Product) return null; // skip if no product
+              const Product = cart.products?.[0];
+              if (!Product) return null;
 
-              // access product attributes
               const productName = Product.productName || "N/A";
               const price = Product.Price || 0;
               const quantity = cart.quantity;
@@ -99,6 +106,12 @@ const Cart = () => {
               </TableCell>
             </TableRow>
           )}
+          {/* Display Total Amount */}
+          <TableRow>
+            <TableCell colSpan={5} className="text-center font-semibold text-lg">
+              Total Amount : ${totalAmount}
+            </TableCell>
+          </TableRow>
         </TableBody>
       </Table>
     </div>
