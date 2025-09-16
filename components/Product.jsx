@@ -85,7 +85,7 @@ const Product = () => {
         variant="outline"
         className="mx-5 mt-3 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white text-lg shadow-md rounded-xl transition-all duration-200"
       >
-        🛒 Add to Cart
+      Buy
       </Button>
     </Card>
     </Link>

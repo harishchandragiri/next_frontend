@@ -4,12 +4,20 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { useParams } from "next/navigation";
+import { useMyContext } from "@/app/context/MyContext";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
   const { id } = useParams(); // dynamic route param
   const API_URL = "http://localhost:1337"; // ✅ hardcoded
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const { user, setUser } = useMyContext();
+  const router = useRouter();
+
+   const productId = product?.id || "unknown";
+   const userId = user?.id || "unknown";
+  //  const productPrice = product?.Price || 0; // Ensure Price is defined
 
   useEffect(() => {
     let isMounted = true;
@@ -52,6 +60,56 @@ const Page = () => {
   const imageUrl = product.image
     ? `${API_URL}${product.image.url}`
     : "/placeholder.png";
+
+  // console.log("User in product page:", user);
+  // console.log("Product details:", { productId, userId, quantity, totalAmount });
+
+  const handleUpload = async () => {
+    const token = localStorage.getItem("jwt");
+    if (!token) {
+      setUser(null);
+      return;
+    }
+    try {
+    const payload = {
+      data: {
+        products: productId,          // ✅ product relation
+        users_permissions_user: userId, // ✅ user relation
+        quantity: quantity,           // ✅ number
+      },
+    };
+
+    const res = await axios.post(`${API_URL}/api/carts`, payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("Cart item added:", res.data);
+
+    const remaningstock = product.Quantity - quantity;
+    console.log("Remaining stock:", remaningstock);
+
+  const payload2 = {
+  data: {
+    Quantity: remaningstock, // or quantity if lowercase in Strapi
+  },
+  };
+
+    const res1 = await axios.put(`${API_URL}/api/products/${product.documentId}`, payload2, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log("Cart item added:", res1.data);
+    alert("Product added to cart!");
+    // ✅ Redirect to home
+    router.push("/cart");
+
+  } catch (error) {
+    console.error("Error adding to cart:", error.response?.data || error.message);
+  }
+  }
 
   return (
     <div className="flex justify-center px-6">
@@ -112,7 +170,7 @@ const Page = () => {
             </div>
 
             {/* Add to Cart Button */}
-            <Button className="mt-3 w-[140px] md:w-[200px] h-[35px] md:h-[60px] bg-blue-600 hover:bg-blue-700 text-white text-lg py-3 rounded-xl shadow-md transition-all duration-200">
+            <Button onClick={handleUpload} className="mt-3 w-[140px] md:w-[200px] h-[35px] md:h-[60px] bg-blue-600 hover:bg-blue-700 text-white text-lg py-3 rounded-xl shadow-md transition-all duration-200">
               🛒 Add to Cart
             </Button>
           </div>
