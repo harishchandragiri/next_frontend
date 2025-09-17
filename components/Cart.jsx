@@ -49,28 +49,37 @@ const Cart = () => {
     return total;
   }, 0);
 
-  const Buy = async () => {
-    const token = localStorage.getItem("jwt");
-    if (!token) {
-      alert("You must be logged in to make a purchase.");
-      return;
+const Buy = async () => {
+  const token = localStorage.getItem("jwt");
+  if (!token) {
+    alert("You must be logged in to make a purchase.");
+    return;
+  }
+
+  try {
+    for (const cart of carts) {
+      await axios.put(
+        `${API_URL}/api/carts/${cart.documentId}`,
+        {
+          data: { buy: true }, // ✅ set buy = true
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      console.log("Updated cart to buy=true:", cart.documentId);
     }
-   try {
-      await axios.delete(`${API_URL}/api/carts/${documentId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
 
-      // Remove deleted cart from state
-      setCarts((prev) => prev.filter((cart) => cart.documentId !== documentId));
+    // ✅ Update local state after purchase
+    setCarts([]);
+  } catch (err) {
+    console.error("Error updating carts:", err);
+  }
+};
 
-      console.log("Deleted cart:", documentId);
-    } catch (err) {
-      console.error("Error deleting cart:", err);
-    }
-    // Add your buy logic here
-  };
 
-  
+
 
   // ✅ Fixed delete function (uses documentId instead of id)
   const handleDelete = async (documentId) => {
