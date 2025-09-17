@@ -10,6 +10,7 @@ export default function ProfileCard() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState("");
+  const [users, setUsers] = useState(null);
   const [imagePreview, setImagePreview] = useState("/default-avatar.png");
   const [showUploadButton, setShowUploadButton] = useState(false);
 
@@ -19,11 +20,21 @@ export default function ProfileCard() {
     typeof window !== "undefined" ? localStorage.getItem("jwt") : null;
 
   useEffect(() => {
+    const userData = axios.get(`${API_URL}/api/users/me?populate=*`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((res) => {
+      const data = res.data;
+      // setUser(data);
+      setUsers(data);
+      console.log("User data from API:", data);
+      setImagePreview(
+        data.image ? `${API_URL}${data.image.url}` : "/default-avatar.png"
+      );
+    console.log("Fetched user data:", data);
+    }).catch((err) => console.error("Error fetching user data:", err));
+
     if (user) {
       setInputValue(user.username || "");
-      setImagePreview(
-        user.image ? `${user.image.url}` : "/default-avatar.png"
-      );
     }
   }, [user]);
 
@@ -70,7 +81,7 @@ export default function ProfileCard() {
       const newImageId = uploadedFile.id;
 
       // Keep previous image id if exists
-      const previousImageId = user.image?.id;
+      const previousImageId = users.image?.id;
 
       // 2️⃣ Update user with new image
       await axios.put(
