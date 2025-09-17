@@ -14,20 +14,21 @@ import {
 } from "@/components/ui/table";
 
 const Transaction = () => {
-  const { user } = useMyContext(); // ✅ only use user from context
+  const { user } = useMyContext(); // only use user from context
   const [transactions, setTransactions] = useState([]);
 
-  const API_URL = "http://localhost:1337"; // ✅ hardcoded, not from context
+  const API_URL = "http://localhost:1337"; // hardcoded API URL
 
+  // Fetch transactions for the current user
   useEffect(() => {
     if (!user) return; // wait until user is loaded
 
-    const token = localStorage.getItem("jwt"); // still needed for auth headers
+    const token = localStorage.getItem("jwt");
     if (!token) return;
 
     axios
       .get(
-        `${API_URL}/api/transactions?filters[user][id][$eq]=${user.id}&populate=*`,
+        `${API_URL}/api/carts?filters[buy][$eq]=true&filters[users_permissions_user][id][$eq]=${user.id}&populate=products.image`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -35,6 +36,7 @@ const Transaction = () => {
       .then((res) => {
         const data = res.data.data || [];
         setTransactions(data);
+        console.log("Fetched transactions:", data);
       })
       .catch((err) => console.error("Error fetching transactions:", err));
   }, [user]);
@@ -56,18 +58,24 @@ const Transaction = () => {
         </TableHeader>
         <TableBody>
           {transactions.length > 0 ? (
-            transactions.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell className="font-medium">
-                  {item.product}
-                </TableCell>
-                <TableCell>{item.Quantity}</TableCell>
-                <TableCell>${item.Price}</TableCell>
-                <TableCell className="text-right">
-                  {new Date(item.soldDate).toLocaleDateString()}
-                </TableCell>
-              </TableRow>
-            ))
+            transactions.map((item) => {
+              const product = item.products?.[0];
+              const productName = product?.productName || "N/A";
+              const quantity = item.quantity || 0;
+              const price = product?.Price || 0;
+              const soldDate = item.updatedAt || item.createdAt;
+
+              return (
+                <TableRow key={item.documentId}>
+                  <TableCell className="font-medium">{productName}</TableCell>
+                  <TableCell>{quantity}</TableCell>
+                  <TableCell>${price}</TableCell>
+                  <TableCell className="text-right">
+                    {new Date(soldDate).toLocaleDateString()}
+                  </TableCell>
+                </TableRow>
+              );
+            })
           ) : (
             <TableRow>
               <TableCell colSpan={4} className="text-center text-gray-500">
