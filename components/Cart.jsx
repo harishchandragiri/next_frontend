@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Button } from '@/components/ui/button'
+import { Trash2 } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -21,10 +22,9 @@ const Cart = () => {
   useEffect(() => {
     if (!user || !user.id) return;
     const token = localStorage.getItem("jwt");
-
     axios
       .get(
-        `${API_URL}/api/carts?populate[products][populate]=image&filters[users_permissions_user][id][$eq]=${user.id}`,
+        `${API_URL}/api/carts?populate[products][populate]=image&filters[users_permissions_user][id][$eq]=${user.id}&filters[buy][$eq]=false`,
         { headers: { Authorization: `Bearer ${token}` } }
       )
       .then((res) => {
@@ -49,11 +49,56 @@ const Cart = () => {
     return total;
   }, 0);
 
+  const Buy = async () => {
+    const token = localStorage.getItem("jwt");
+    if (!token) {
+      alert("You must be logged in to make a purchase.");
+      return;
+    }
+   try {
+      await axios.delete(`${API_URL}/api/carts/${documentId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Remove deleted cart from state
+      setCarts((prev) => prev.filter((cart) => cart.documentId !== documentId));
+
+      console.log("Deleted cart:", documentId);
+    } catch (err) {
+      console.error("Error deleting cart:", err);
+    }
+    // Add your buy logic here
+  };
+
+  
+
+  // ✅ Fixed delete function (uses documentId instead of id)
+  const handleDelete = async (documentId) => {
+    const token = localStorage.getItem("jwt");
+    if (!token) {
+      alert("You must be logged in to delete a cart item.");
+      return;
+    }
+
+    try {
+      await axios.delete(`${API_URL}/api/carts/${documentId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Remove deleted cart from state
+      setCarts((prev) => prev.filter((cart) => cart.documentId !== documentId));
+
+      console.log("Deleted cart:", documentId);
+    } catch (err) {
+      console.error("Error deleting cart:", err);
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center">
         <h2 className="font-semibold text-3xl my-2 px-3 lg:px-0">Products</h2>
-        <Button className="mx-3 w-24">Buy</Button>
+        <Button onClick={Buy} className="mx-3 w-24">Buy</Button>
       </div>
       <hr className="my-1 border-gray-300" />
 
@@ -65,7 +110,7 @@ const Cart = () => {
             <TableHead>Product</TableHead>
             <TableHead>Quantity</TableHead>
             <TableHead>Price</TableHead>
-            <TableHead className="text-right">Sold Date</TableHead>
+            <TableHead className="text-right">Delete</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -80,7 +125,7 @@ const Cart = () => {
               const image = Product.image?.url;
 
               return (
-                <TableRow key={cart.id}>
+                <TableRow key={cart.documentId}>
                   <TableCell className="px-2 flex items-center">
                     <img
                       src={image ? `${API_URL}${image}` : "/default-avatar.png"}
@@ -91,10 +136,13 @@ const Cart = () => {
                   <TableCell className="font-medium">{productName}</TableCell>
                   <TableCell>{quantity}</TableCell>
                   <TableCell>${price}</TableCell>
-                  <TableCell className="text-right">
-                    {cart.publishedAt
-                      ? new Date(cart.publishedAt).toLocaleDateString()
-                      : "N/A"}
+                  <TableCell className="flex justify-end items-center h-full">
+                    <button
+                      onClick={() => handleDelete(cart.documentId)}
+                      className="flex items-center text-red-600 hover:text-red-800"
+                    >
+                      <Trash2 />
+                    </button>
                   </TableCell>
                 </TableRow>
               );
