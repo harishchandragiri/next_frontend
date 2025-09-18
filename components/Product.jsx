@@ -15,7 +15,7 @@ import axios from 'axios';
 
 const Product = () => {
 
-  const API_URL = "http://localhost:1337"; // ✅ hardcoded, not from context
+  const API_URL = process.env.NEXT_PUBLIC_API; // ✅ hardcoded, not from context
   const [product, setProduct]=useState([])
 
   useEffect(() => {

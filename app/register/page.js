@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
-const API_URL = "http://localhost:1337";
+const API_URL = process.env.NEXT_PUBLIC_API;
 
 const Page = () => {
   const { setUser } = useMyContext();

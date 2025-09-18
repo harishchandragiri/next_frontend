@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 
 const Page = () => {
   const { id } = useParams(); // dynamic route param
-  const API_URL = "http://localhost:1337"; // ✅ hardcoded
+  const API_URL = process.env.NEXT_PUBLIC_API; // ✅ hardcoded
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const { user, setUser } = useMyContext();

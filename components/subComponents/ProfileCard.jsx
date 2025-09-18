@@ -15,7 +15,7 @@ export default function ProfileCard() {
   const [showUploadButton, setShowUploadButton] = useState(false);
 
   const fileInputRef = useRef(null);
-  const API_URL = "http://localhost:1337";
+  const API_URL = process.env.NEXT_PUBLIC_API;
   const token =
     typeof window !== "undefined" ? localStorage.getItem("jwt") : null;
 

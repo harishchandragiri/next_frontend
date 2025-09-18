@@ -17,7 +17,7 @@ import { useMyContext } from "@/app/context/MyContext";
 const Cart = () => {
   const [carts, setCarts] = useState([]);
   const { user } = useMyContext();
-  const API_URL = "http://localhost:1337";
+  const API_URL = process.env.NEXT_PUBLIC_API;
 
   useEffect(() => {
     if (!user || !user.id) return;

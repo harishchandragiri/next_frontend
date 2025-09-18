@@ -17,7 +17,7 @@ const Transaction = () => {
   const { user } = useMyContext(); // only use user from context
   const [transactions, setTransactions] = useState([]);
 
-  const API_URL = "http://localhost:1337"; // hardcoded API URL
+  const API_URL = process.env.NEXT_PUBLIC_API; // hardcoded API URL
 
   // Fetch transactions for the current user
   useEffect(() => {

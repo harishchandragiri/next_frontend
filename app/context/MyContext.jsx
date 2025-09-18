@@ -4,7 +4,7 @@ import axios from "axios";
 import { createContext, useContext, useState, useEffect } from "react";
 
 const MyContext = createContext();
-const API_URL = "http://localhost:1337";
+const API_URL = process.env.NEXT_PUBLIC_API;
 
 export const MyContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
