@@ -29,7 +29,7 @@ export default function ProfileCard() {
       console.log("User data from API:", data);
       console.log("User image data:", data.image.url);
       setImagePreview(
-        data.image ? `${data.image.url}` : "/default-avatar.png"
+        data.image ? `${API_URL}${data.image.url}` : "/default-avatar.png"   //remove ${API_URL} while deploing the code
       );
     console.log("Fetched user data:", data);
     }).catch((err) => console.error("Error fetching user data:", err));
