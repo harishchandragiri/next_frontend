@@ -27,6 +27,7 @@ export default function ProfileCard() {
       // setUser(data);
       setUsers(data);
       console.log("User data from API:", data);
+      console.log("User image data:", data.image.url);
       setImagePreview(
         data.image ? `${API_URL}${data.image.url}` : "/default-avatar.png"
       );
