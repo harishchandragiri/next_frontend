@@ -142,15 +142,15 @@ export default function ProfileCard() {
   };
 
   return (
-    <div className="p-3 w-full h-full bg-white flex flex-col items-center">
+    <div className="p-3 md w-full h-full bg-white flex flex-col items-center">
       {/* Image Section */}
       <div className="relative w-full flex flex-col items-center">
         <img
           src={imagePreview}
           alt="Profile"
-          className="w-70 h-60 lg:w-60 lg:h-50 object-cover rounded-full border-2 border-gray-200 shadow-md"
+          className="w-60 h-40 object-cover border-2 rounded-[5px] border-gray-200 shadow-md"
         />
-        <hr className="w-full border-t border-gray-300 my-4" />
+        {/* <hr className="w-full border-t border-gray-300 my-4" /> */}
         <div className="w-full m-5 flex items-center justify-center">
           <button
             onClick={handleUploadClick}
