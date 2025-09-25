@@ -55,7 +55,7 @@ const Product = () => {
           <img
           src={
           prod.image
-            ? `${API_URL}${prod.image.url}`
+            ? `${prod.image.url}`
             : "/placeholder.png"
            } // full URL
             alt={prod.productName}

@@ -137,7 +137,7 @@ const Buy = async () => {
                 <TableRow key={cart.documentId}>
                   <TableCell className="px-2 flex items-center">
                     <img
-                      src={image ? `${API_URL}${image}` : "/default-avatar.png"}
+                      src={image ? `${image}` : "/default-avatar.png"}
                       alt={productName}
                       className="w-10 h-10 object-cover rounded-full border-2 border-gray-200 shadow-md"
                     />

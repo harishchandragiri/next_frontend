@@ -58,7 +58,7 @@ const Page = () => {
     : "0.00";
 
   const imageUrl = product.image
-    ? `${API_URL}${product.image.url}`
+    ? `${product.image.url}`
     : "/placeholder.png";
 
   // console.log("User in product page:", user);
