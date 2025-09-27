@@ -24,7 +24,7 @@ const Cart = () => {
     const token = localStorage.getItem("jwt");
     axios
       .get(
-        `${API_URL}/api/carts?populate[products][populate]=image&filters[users_permissions_user][id][$eq]=${user.id}&filters[buy][$eq]=false`,
+        `${API_URL}/api/carts?populate[productName][populate]=image&filters[users_permissions_user][id][$eq]=${user.id}&filters[buy][$eq]=false`,
         { headers: { Authorization: `Bearer ${token}` } }
       )
       .then((res) => {
@@ -40,14 +40,14 @@ const Cart = () => {
   }
 
   // ✅ Function to calculate total amount
-  const totalAmount = carts.reduce((total, cart) => {
-    if (cart.products && cart.products.length > 0) {
-      cart.products.forEach((product) => {
-        total += cart.quantity * (product.Price || 0);
-      });
-    }
-    return total;
-  }, 0);
+ const totalAmount = carts.reduce((total, cart) => {
+  const product = cart.productName;
+  if (product) {
+    total += cart.quantity * (product.Price || 0);
+  }
+  return total;
+}, 0);
+
 
 const Buy = async () => {
   const token = localStorage.getItem("jwt");
@@ -125,7 +125,7 @@ const Buy = async () => {
         <TableBody>
           {carts.length > 0 ? (
             carts.map((cart) => {
-              const Product = cart.products?.[0];
+              const Product = cart.productName;
               if (!Product) return null;
 
               const productName = Product.productName || "N/A";

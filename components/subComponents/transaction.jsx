@@ -28,7 +28,7 @@ const Transaction = () => {
 
     axios
       .get(
-        `${API_URL}/api/carts?filters[buy][$eq]=true&filters[users_permissions_user][id][$eq]=${user.id}&populate=products.image`,
+        `${API_URL}/api/carts?filters[buy][$eq]=true&filters[users_permissions_user][id][$eq]=${user.id}&populate=productName.image`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -59,7 +59,7 @@ const Transaction = () => {
         <TableBody>
           {transactions.length > 0 ? (
             transactions.map((item) => {
-              const product = item.products?.[0];
+              const product = item.productName;
               const productName = product?.productName || "N/A";
               const quantity = item.quantity || 0;
               const price = product?.Price || 0;

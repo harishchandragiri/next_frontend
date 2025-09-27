@@ -73,7 +73,7 @@ const Page = () => {
     try {
     const payload = {
       data: {
-        products: productId,          // ✅ product relation
+        productName: product.documentId,          // ✅ product relation
         users_permissions_user: userId, // ✅ user relation
         quantity: quantity,           // ✅ number
       },
